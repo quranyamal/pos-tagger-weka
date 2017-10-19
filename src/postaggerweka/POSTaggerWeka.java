@@ -53,6 +53,7 @@ public class POSTaggerWeka {
         if (word.equals("\'")) word = SINGLE_QUOTES;
         if (word.equals("\"")) word = DOUBLE_QUOTES;
         if (word.equals("''")) word = DOUBLE_SINGLE_QUOTES;
+        word = word.replace(",", "");
         if (isNumeric(word)) word = NUMBER;
         word = word.replace("\'", "");
         word = word.replace("\"", "");
