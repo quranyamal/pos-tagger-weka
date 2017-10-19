@@ -40,6 +40,9 @@ public class MainPOSTaggerWeka {
             System.out.println("First instance of nominal data:");
             System.out.println(nominalData.firstInstance()+"\n");
             
+            // save ARFF
+            ptw.saveArff(nominalData, "test.arff"); // debugging purposes
+            
             // Build J48 classifier model
             J48 tree = new J48();
             tree.buildClassifier(nominalData);
@@ -57,12 +60,18 @@ public class MainPOSTaggerWeka {
             String postagTwoBefore = "UNKNOWN2";
             String postagBefore = "UNKNOWN1";
             for (String s : splited) {
-                Instance ins = rawData.get(0);
+                Instance ins = nominalData.get(0);
                 ins.setValue(0, s);
-                ins.setValue(1, postagTwoBefore);
+                try {
+                    ins.setValue(1, postagTwoBefore);
+                } catch (IllegalArgumentException e) {
+                    ins.setValue(1, "xCOMMA");
+                }
                 ins.setValue(2, postagBefore);
+                ins.setValue(3, "NOUN");
                 int indeks = (int) tree.classifyInstance(ins);
                 postag = nominalData.classAttribute().value(indeks);
+                System.out.println(ins.toString());
                 System.out.println("Pos Tag untuk \""+s+"\" : " + postag);
                 
                 postagTwoBefore = postagBefore;

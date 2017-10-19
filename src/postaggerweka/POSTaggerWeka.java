@@ -109,7 +109,7 @@ public class POSTaggerWeka {
     }
     
     public static void saveArff(Instances data, String filename) throws Exception {
-        BufferedWriter writer = new BufferedWriter(new FileWriter("files/" + filename));
+        BufferedWriter writer = new BufferedWriter(new FileWriter("data/" + filename));
         writer.write(data.toString());
         writer.flush();
         writer.close();
