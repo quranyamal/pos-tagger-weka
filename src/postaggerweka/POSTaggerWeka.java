@@ -5,6 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import weka.core.Instances;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.NumericToNominal;
+import weka.filters.unsupervised.attribute.StringToNominal;
+import weka.filters.unsupervised.attribute.StringToWordVector;
 
 /**
  *
@@ -12,13 +17,24 @@ import java.io.IOException;
  */
 public class POSTaggerWeka {
     
-    public static final String UNK_TAG_1 = "UNKNOWN1";
-    public static final String UNK_TAG_2 = "UNKNOWN2";
+    public static final String UNKNOWN_TAG_1 = "UNKNOWN1";
+    public static final String UNKNOWN_TAG_2 = "UNKNOWN2";
     public static final String DOT = "xDOT";
     public static final String COMMA = "xCOMMA";
     public static final String SINGLE_QUOTES = "xSINGQUOT";
     public static final String DOUBLE_QUOTES = "xDOUBQUOT";
     public static final String DOUBLE_SINGLE_QUOTES = "xDOUBSINGQUOT";
+    public static final String NUMBER = "xNUMBER";
+    
+    boolean verboseMode = false;
+    
+    void setVerboseMode(boolean isVerbose) {
+        this.verboseMode = isVerbose;
+    }
+   
+    public boolean isNumeric(String str) {  
+        return str != null && str.matches("[-+]?\\d*\\.?\\d+");  
+    }  
     
     void conlluToArff(String connluFile, String arffFile) throws FileNotFoundException, IOException {
         FileReader file = new FileReader(connluFile);
@@ -26,7 +42,7 @@ public class POSTaggerWeka {
         BufferedReader br = new BufferedReader(file);
         
         String line, word, tag="INIT";
-        String tagBefore=UNK_TAG_1, tagTwoBefore=UNK_TAG_2;
+        String tagBefore=UNKNOWN_TAG_1, tagTwoBefore=UNKNOWN_TAG_2;
         int num;
         
         writer.write("@relation postag\n");
@@ -45,17 +61,19 @@ public class POSTaggerWeka {
                 num = Integer.parseInt(splited[0]);
                 word = splited[1];
   
+                // replace special characters
                 if (word.equals(".")) word = DOT;
                 if (word.equals(",")) word = COMMA;
                 if (word.equals("\'")) word = SINGLE_QUOTES;
                 if (word.equals("\"")) word = DOUBLE_QUOTES;
                 if (word.equals("''")) word = DOUBLE_SINGLE_QUOTES;
+                if (isNumeric(word)) word = NUMBER;
                 word = word.replace("\'", "");
                 word = word.replace("\"", "");
                 
                 if (num==1) {
-                    tagTwoBefore = UNK_TAG_2;
-                    tagBefore = UNK_TAG_1;
+                    tagTwoBefore = UNKNOWN_TAG_2;
+                    tagBefore = UNKNOWN_TAG_1;
                 } else {
                     tagTwoBefore = tagBefore;
                     tagBefore = tag;
@@ -63,11 +81,36 @@ public class POSTaggerWeka {
                 
                 tag = splited[3];
                 writer.write(word+", "+tagTwoBefore+", "+tagBefore+", "+tag+"\n");
-                System.out.println(num+" "+word+": "+tag+" "+tagBefore+" "+tagTwoBefore);
+                if (verboseMode) System.out.println(num+" "+word+": "+tag+" "+tagBefore+" "+tagTwoBefore);
             }
         }
         writer.close();
+        System.out.println("Export complete");
     }
 
+    public Instances convertToNominal(Instances data) throws Exception {
+        int classIndex;
+                
+        StringToNominal s = new StringToNominal();
+        s.setInputFormat(data);
+        data = Filter.useFilter(data,s);
+        
+        classIndex = data.numAttributes() - 1;
+        data.setClassIndex(classIndex);
+        
+        StringToWordVector converter = new StringToWordVector();
+        converter.setInputFormat(data);
+        Instances newData = Filter.useFilter(data, converter);
+        
+        newData.setClassIndex(0);
+        
+        NumericToNominal converter2 = new NumericToNominal();
+        converter2.setInputFormat(newData);
+        Instances newNewData = Filter.useFilter(newData, converter2);
+        
+        newData.setClassIndex(0);
+        
+        return newNewData;
+    }
     
 }
