@@ -53,6 +53,7 @@ public class MainPOSTaggerWeka {
             System.out.println(evalResult.toSummaryString());
             
             // Test new string input
+            System.out.println("Kalimat baru : ");
             Scanner scan = new Scanner(System.in);
             String line = scan.nextLine();
             String[] splited = line.split(" ");
@@ -62,16 +63,11 @@ public class MainPOSTaggerWeka {
             for (String s : splited) {
                 Instance ins = nominalData.get(0);
                 ins.setValue(0, s);
-                try {
-                    ins.setValue(1, postagTwoBefore);
-                } catch (IllegalArgumentException e) {
-                    ins.setValue(1, "xCOMMA");
-                }
+                ins.setValue(1, postagTwoBefore);
                 ins.setValue(2, postagBefore);
                 ins.setValue(3, "NOUN");
                 int indeks = (int) tree.classifyInstance(ins);
                 postag = nominalData.classAttribute().value(indeks);
-                System.out.println(ins.toString());
                 System.out.println("Pos Tag untuk \""+s+"\" : " + postag);
                 
                 postagTwoBefore = postagBefore;
