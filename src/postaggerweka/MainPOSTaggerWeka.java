@@ -46,7 +46,7 @@ public class MainPOSTaggerWeka {
             System.out.println(nominalData.firstInstance()+"\n");
             
             // save ARFF
-            ptw.saveArff(nominalData, "test.arff");
+            ptw.saveArff(nominalData, "save.arff");
             
             // make array words
             ArrayList<String> words = new ArrayList<>();
