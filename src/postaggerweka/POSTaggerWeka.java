@@ -8,10 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import weka.core.Instances;
 import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.NumericToNominal;
 import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.unsupervised.attribute.StringToNominal;
-import weka.filters.unsupervised.attribute.StringToWordVector;
 
 /**
  *
