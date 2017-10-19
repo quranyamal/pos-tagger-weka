@@ -42,6 +42,7 @@ public class MainPOSTaggerWeka {
             
             // Build J48 classifier model
             J48 tree = new J48();
+            tree.buildClassifier(nominalData);
             
             // Evaluation with 10-fold cross validation
             Evaluation evalResult = new Evaluation(nominalData);
@@ -52,10 +53,20 @@ public class MainPOSTaggerWeka {
             Scanner scan = new Scanner(System.in);
             String line = scan.nextLine();
             String[] splited = line.split(" ");
+            String postag;
+            String postagTwoBefore = "UNKNOWN2";
+            String postagBefore = "UNKNOWN1";
             for (String s : splited) {
-                String postag = "POSTAG";
+                Instance ins = rawData.get(0);
+                ins.setValue(0, s);
+                ins.setValue(1, postagTwoBefore);
+                ins.setValue(2, postagBefore);
+                int indeks = (int) tree.classifyInstance(ins);
+                postag = nominalData.classAttribute().value(indeks);
                 System.out.println("Pos Tag untuk \""+s+"\" : " + postag);
                 
+                postagTwoBefore = postagBefore;
+                postagBefore = postag;
             }            
             
         } catch (Exception e) {
