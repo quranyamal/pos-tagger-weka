@@ -65,6 +65,11 @@ public class MainPOSTaggerWeka {
             J48 tree = new J48();
             tree.buildClassifier(nominalData);
             
+            // OOV HANDLER
+            J48 tree2 = new J48();
+            Instances cutWord = ptw.removeAttribute(nominalData, 0);
+            tree2.buildClassifier(cutWord);
+            
             // Evaluation with 10-fold cross validation
             Evaluation evalResult = new Evaluation(nominalData);
             evalResult.crossValidateModel(tree, nominalData, 10, new Random(1));
@@ -80,16 +85,21 @@ public class MainPOSTaggerWeka {
             String postagBefore = "UNKNOWN1";
             Instance ins = nominalData.get(0);
             for (String s : splited) {
-                ins.setValue(1, postagTwoBefore);
-                ins.setValue(2, postagBefore);
-                if (words.contains(s))
+                int indeks;
+                if (words.contains(s)) {
                     ins.setValue(0, s);
-                else {
+                    ins.setValue(1, postagTwoBefore);
+                    ins.setValue(2, postagBefore);
+                    indeks = (int) tree.classifyInstance(ins);
+                } else {
                     System.out.println("!!! OOV (Out of Vocabulary) : " + s + " !!!");
-                    ins.setValue(0, "dan");
+                    Instance newIns = cutWord.get(0);
+                    newIns.setValue(0, postagTwoBefore);
+                    newIns.setValue(1, postagBefore);
+                    indeks = (int) tree2.classifyInstance(newIns);
                 }
                 
-                int indeks = (int) tree.classifyInstance(ins);
+                
                 postag = nominalData.classAttribute().value(indeks);
                 System.out.println("Pos Tag untuk \""+s+"\" : " + postag);
                 postagTwoBefore = postagBefore;
