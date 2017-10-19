@@ -1,6 +1,7 @@
 package postaggerweka;
 
 import java.util.Random;
+import java.util.Scanner;
 import weka.classifiers.Evaluation;
 import weka.classifiers.trees.J48;
 import weka.core.Instance;
@@ -47,6 +48,15 @@ public class MainPOSTaggerWeka {
             evalResult.crossValidateModel(tree, nominalData, 10, new Random(1));
             System.out.println(evalResult.toSummaryString());
             
+            // Test new string input
+            Scanner scan = new Scanner(System.in);
+            String line = scan.nextLine();
+            String[] splited = line.split(" ");
+            for (String s : splited) {
+                String postag = "POSTAG";
+                System.out.println("Pos Tag untuk \""+s+"\" : " + postag);
+                
+            }            
             
         } catch (Exception e) {
             System.err.println(e);
