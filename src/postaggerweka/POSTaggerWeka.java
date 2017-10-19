@@ -36,6 +36,30 @@ public class POSTaggerWeka {
         return str != null && str.matches("[-+]?\\d*\\.?\\d+");  
     }  
     
+    private void writeHeader(FileWriter writer) throws IOException {
+        writer.write("@relation postag\n");
+        writer.write("\n");
+        writer.write("@attribute word string\n");
+        writer.write("@attribute tag_two_before string\n");
+        writer.write("@attribute tag_before string\n");
+        writer.write("@attribute tag string\n");
+        writer.write("\n");
+        writer.write("@data\n");
+    }
+    
+    private String handleSpecialCase(String word) {
+        if (word.equals(".")) word = DOT;
+        if (word.equals(",")) word = COMMA;
+        if (word.equals("\'")) word = SINGLE_QUOTES;
+        if (word.equals("\"")) word = DOUBLE_QUOTES;
+        if (word.equals("''")) word = DOUBLE_SINGLE_QUOTES;
+        if (isNumeric(word)) word = NUMBER;
+        word = word.replace("\'", "");
+        word = word.replace("\"", "");
+        
+        return word;
+    }
+    
     void conlluToArff(String connluFile, String arffFile) throws FileNotFoundException, IOException {
         FileReader file = new FileReader(connluFile);
         FileWriter writer = new FileWriter(arffFile);
@@ -45,14 +69,7 @@ public class POSTaggerWeka {
         String tagBefore=UNKNOWN_TAG_1, tagTwoBefore=UNKNOWN_TAG_2;
         int num;
         
-        writer.write("@relation postag\n");
-        writer.write("\n");
-        writer.write("@attribute word string\n");
-        writer.write("@attribute tag_two_before string\n");
-        writer.write("@attribute tag_before string\n");
-        writer.write("@attribute tag string\n");
-        writer.write("\n");
-        writer.write("@data\n");
+        writeHeader(writer);
         
         while ((line = br.readLine())!=null) {
             if (!line.equals("") && line.charAt(0)!='#') {
@@ -61,15 +78,7 @@ public class POSTaggerWeka {
                 num = Integer.parseInt(splited[0]);
                 word = splited[1];
   
-                // replace special characters
-                if (word.equals(".")) word = DOT;
-                if (word.equals(",")) word = COMMA;
-                if (word.equals("\'")) word = SINGLE_QUOTES;
-                if (word.equals("\"")) word = DOUBLE_QUOTES;
-                if (word.equals("''")) word = DOUBLE_SINGLE_QUOTES;
-                if (isNumeric(word)) word = NUMBER;
-                word = word.replace("\'", "");
-                word = word.replace("\"", "");
+                word = handleSpecialCase(word);
                 
                 if (num==1) {
                     tagTwoBefore = UNKNOWN_TAG_2;

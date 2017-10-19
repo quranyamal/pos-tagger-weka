@@ -30,14 +30,14 @@ public class MainPOSTaggerWeka {
             rawData = source.getDataSet();
             rawData.setClassIndex(rawData.numAttributes()-1);
             
-            System.out.println("First instance raw data:");
-            System.out.println(rawData.firstInstance());
+            System.out.println("First instance of raw data:");
+            System.out.println(rawData.firstInstance()+"\n");
             
             // get nominal dataset from raw data
             nominalData = ptw.convertToNominal(rawData);
             
-            System.out.println("First instance nominal data:");
-            System.out.println(nominalData.firstInstance());
+            System.out.println("First instance of nominal data:");
+            System.out.println(nominalData.firstInstance()+"\n");
             
             // Build J48 classifier model
             J48 tree = new J48();
@@ -47,9 +47,6 @@ public class MainPOSTaggerWeka {
             evalResult.crossValidateModel(tree, nominalData, 10, new Random(1));
             System.out.println(evalResult.toSummaryString());
             
-            // print 20th instance of nominal data
-            Instance ins = nominalData.get(20);
-            System.out.println(ins);
             
         } catch (Exception e) {
             System.err.println(e);
