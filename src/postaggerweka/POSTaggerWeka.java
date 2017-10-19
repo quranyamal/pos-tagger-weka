@@ -1,6 +1,7 @@
 package postaggerweka;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -8,6 +9,7 @@ import java.io.IOException;
 import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.NumericToNominal;
+import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.unsupervised.attribute.StringToNominal;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
@@ -96,30 +98,48 @@ public class POSTaggerWeka {
         writer.close();
         System.out.println("Export complete");
     }
-
-    public Instances convertToNominal(Instances data) throws Exception {
-        int classIndex;
-                
+    
+    public static Instances removeAttribute(Instances data, int indeks) throws Exception {
+        Remove remove = new Remove();
+        int[] removeIndeks = new int[1];
+        removeIndeks[0] = indeks;
+        remove.setAttributeIndicesArray(removeIndeks);
+        remove.setInputFormat(data);
+        Instances instNew = Filter.useFilter(data, remove);
+        
+        return instNew;
+    }
+    
+    public static void saveArff(Instances data, String filename) throws Exception {
+        BufferedWriter writer = new BufferedWriter(new FileWriter("files/" + filename));
+        writer.write(data.toString());
+        writer.flush();
+        writer.close();
+    }
+    
+    public static Instances convertStringToNominal(Instances data, int i) throws Exception {
         StringToNominal s = new StringToNominal();
         s.setInputFormat(data);
-        data = Filter.useFilter(data,s);
+        
+        String[] options = new String[2];
+        options[0] = "-R"; //Range option
+        options[1] = Integer.toString(i); //The attribute index
+        s.setOptions(options);
+        Instances newData = Filter.useFilter(data,s);
+        
+        return newData;
+    }
+    
+    public static Instances convertToNominal(Instances data) throws Exception {
+        int classIndex;
+        
+        for (int i=1; i<=4; i++)
+            data = convertStringToNominal(data, i);
         
         classIndex = data.numAttributes() - 1;
         data.setClassIndex(classIndex);
         
-        StringToWordVector converter = new StringToWordVector();
-        converter.setInputFormat(data);
-        Instances newData = Filter.useFilter(data, converter);
-        
-        newData.setClassIndex(0);
-        
-        NumericToNominal converter2 = new NumericToNominal();
-        converter2.setInputFormat(newData);
-        Instances newNewData = Filter.useFilter(newData, converter2);
-        
-        newData.setClassIndex(0);
-        
-        return newNewData;
+        return data;
     }
-    
+
 }
