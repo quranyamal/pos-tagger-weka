@@ -1,10 +1,12 @@
-# pos-tagger-weka
-POS (Position of Speech) Tagger using Weka machine learning tools
+# Position of Speech (POS) Tagger
+this is a netbeans project implements POS Tag (an NLP technique) using Weka machine learning tools
 
 # How To Use
-1. Import weka package to this project
-2. Put the dataset (*.conllu) in the data folder in the name of id-ud-dev.conllu
-3. Run the code in MainPOSTaggerWeka.java
-4. Wait, you will see the cross validation summary
-5. Input new sentences
-6. The program will output you the pos tagger each word
+- Import weka package to this project (can be loaded from /lib)
+- Run the project
+- Wait until the program finished training the model
+- Input a sentence to classify its POS tag and hit enter
+- The program will output you the pos tag of each word
+
+# Note
+This program trains model using **id-ud-dev.conllu** file that is a training dataset for Bahasa Indonesia. You can use other dataset by putting another *.conllu file in **/data** directory and change the filename in sourco code
